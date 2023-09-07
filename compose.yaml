@@ -1,0 +1,12 @@
+services:
+  # TODO: fix, back end
+
+  typesense:
+    image: typesense/typesense:0.25.0
+    environment:
+      - TYPESENSE_API_KEY=example_api_key
+      - TYPESENSE_DATA_DIRECTORY=/data
+    ports:
+      - 8108:8108
+    volumes:
+      - /tmp/typesense-data:/data
