@@ -2,6 +2,7 @@ import os
 import random
 import shutil
 import sys
+from Shuffle_file import rename_files
 
 
 def obter_nomes_pastas(diretorio):
@@ -106,25 +107,18 @@ def move_files(source_folder, destination_folder, num_files):
 
 isValido = sys.argv[3]
 
-if (isValido == 1):
-
-    # Pasta de origem dos arquivos
+if (int(isValido) == 1):
 
     source_folder = diretorio_destino + "/train/"
-    # source_folder = cwd + '/newdata/train/'
 
-    # Pasta de destino para os arquivos movidos
     destination_folder = diretorio_destino + "/validation/"
 
-    # Número de arquivos a serem movidos
     num_files = 5
-
-    # Chama a função para mover os arquivos
-
-    print(pastas)
 
     for each in pastas:
 
         source_folder2 = source_folder + f'{each}'
 
         move_files(source_folder2, destination_folder, num_files)
+
+    rename_files(destination_folder)

@@ -27,5 +27,5 @@ def rename_files(path):
 
 
 # Exemplo de uso
-directory_path = './data/archiveshort/validation/'
-rename_files(directory_path)
+# directory_path = './data/archiveshort/validation/'
+# rename_files(directory_path)
