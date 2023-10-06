@@ -1,0 +1,1 @@
+python divisao_arquivo.py "/data/toDividir/" "/newdata/" 0
