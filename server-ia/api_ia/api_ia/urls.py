@@ -20,6 +20,5 @@ from api_ia.views import hellow_world,search_ia
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('hw/', hellow_world, name="Olá Mundo"),
     path('img/', search_ia, name="Pesquisa img")
 ]

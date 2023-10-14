@@ -3,15 +3,6 @@ from django.http import JsonResponse
 from django import forms
 from api_ia.rede_neural import redeNeuralDishcover
 
-# Create your views here.
-def hellow_world(request):
-  data = {
-    "Message": "Hellow World :)"
-  }
-  
-  return JsonResponse(data)
-
-
 def search_ia(request):
   
   
