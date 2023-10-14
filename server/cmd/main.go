@@ -15,6 +15,12 @@ func main() {
 
 	router := gin.Default()
 
+	router.Use(func(ctx *gin.Context) {
+		ctx.Header("Access-Control-Allow-Origin", "*")
+		ctx.Header("Access-Control-Allow-Headers", "*")
+		ctx.Header("Access-Control-Allow-Methods", "GET, POST")
+	})
+
 	apiGroup := router.Group("api")
 	{
 		apiGroup.GET("health", func(ctx *gin.Context) {

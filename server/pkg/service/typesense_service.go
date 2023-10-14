@@ -3,7 +3,7 @@ package service
 import (
 	"os"
 
-	"github.com/fatih/structs"
+	"github.com/mitchellh/mapstructure"
 	"github.com/typesense/typesense-go/typesense"
 	api "github.com/typesense/typesense-go/typesense/api"
 )
@@ -30,5 +30,11 @@ func (s *TypesenseService) SearchRecipes(query string) (map[string]interface{}, 
 		return nil, err
 	}
 
-	return structs.Map(res), nil
+	result := map[string]interface{}{}
+	err = mapstructure.Decode(res, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
