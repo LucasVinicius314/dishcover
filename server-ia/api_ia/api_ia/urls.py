@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from api_ia.views import hellow_world,search_ia
+from api_ia.views import search_ia
 
 urlpatterns = [
     path('admin/', admin.site.urls),
