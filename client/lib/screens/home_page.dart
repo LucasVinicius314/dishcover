@@ -4,6 +4,7 @@ import 'package:dishcover_client/blocs/recipe_event.dart';
 import 'package:dishcover_client/blocs/recipe_state.dart';
 import 'package:dishcover_client/widgets/base_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HomePage extends StatefulWidget {
@@ -40,8 +41,39 @@ class _HomePageState extends State<HomePage> {
             builder: (context) {
               return AlertDialog(
                 title: const Text('Receita'),
-                content: Text(hit.document?.instructions ?? ''),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      hit.document?.title ?? '',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(hit.document?.instructions ?? ''),
+                  ],
+                ),
                 actions: [
+                  OutlinedButton.icon(
+                    onPressed: () async {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Copiado para a área de transferência.',
+                          ),
+                        ),
+                      );
+
+                      await Clipboard.setData(
+                        ClipboardData(
+                          text:
+                              '${hit.document?.title ?? ''}\n${hit.document?.instructions ?? ''}',
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.copy, size: 18),
+                    label: const Text('Copiar'),
+                  ),
                   OutlinedButton(
                     onPressed: () async {
                       await Navigator.of(context).maybePop();
@@ -94,24 +126,6 @@ class _HomePageState extends State<HomePage> {
                               'Arraste e solte sua foto aqui',
                               textAlign: TextAlign.center,
                             ),
-                            // TODO: fix, picker de arquivo
-                            // const SizedBox(height: 16),
-                            // const Text(
-                            //   'ou',
-                            //   textAlign: TextAlign.center,
-                            //   style: TextStyle(fontWeight: FontWeight.bold),
-                            // ),
-                            // const SizedBox(height: 16),
-                            // OutlinedButton.icon(
-                            //   icon: const Icon(Icons.camera_alt_rounded),
-                            //   onPressed: () {
-                            //     // TODO: fix, evento
-                            //   },
-                            //   label: const Text(
-                            //     'Escolha uma foto',
-                            //     textAlign: TextAlign.center,
-                            //   ),
-                            // ),
                           ],
                         ),
                       ),

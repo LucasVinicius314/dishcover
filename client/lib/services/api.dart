@@ -1,8 +1,9 @@
 import 'dart:convert';
 
 import 'package:dishcover_client/exceptions/http_bad_request_exception.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart' as http_parser;
 import 'package:recase/recase.dart';
 
 class Api {
@@ -24,7 +25,14 @@ class Api {
     final req = http.MultipartRequest('POST', _getUri(path: path));
 
     if (fileBytes != null) {
-      req.files.add(http.MultipartFile.fromBytes('file', fileBytes));
+      req.files.add(
+        http.MultipartFile.fromBytes(
+          'file',
+          fileBytes,
+          contentType: http_parser.MediaType('image', 'jpeg'),
+          filename: 'img',
+        ),
+      );
     }
 
     return _fixMapCase(
@@ -37,7 +45,10 @@ class Api {
   }) async {
     final body = await response.stream.bytesToString();
 
-    print(response.request.toString());
+    if (kDebugMode) {
+      print(response.request.toString());
+      print(body);
+    }
 
     if (response.statusCode >= 400) {
       throw HttpBadRequestException(message: body);
