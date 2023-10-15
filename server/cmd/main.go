@@ -2,6 +2,7 @@ package main
 
 import (
 	"dishcover/server/pkg/service"
+	"io"
 	"log"
 
 	"github.com/gin-contrib/static"
@@ -11,6 +12,7 @@ import (
 )
 
 func main() {
+	aiService := service.AiService{}
 	typesenseService := service.TypesenseService{}
 
 	router := gin.Default()
@@ -30,15 +32,52 @@ func main() {
 		})
 
 		apiGroup.POST("recipe", func(ctx *gin.Context) {
-			res, err := typesenseService.SearchRecipes("tomato")
+			formFile, err := ctx.FormFile("file")
 			if err != nil {
-				log.Printf("failed to search recipes: %v", err)
+				ctx.JSON(400, map[string]string{
+					"message": "failed to get form file",
+				})
 
-				ctx.JSON(400, res)
 				return
 			}
 
-			ctx.JSON(200, convertKeys(res))
+			file, err := formFile.Open()
+			if err != nil {
+				ctx.JSON(400, map[string]string{
+					"message": "failed to open form file",
+				})
+
+				return
+			}
+
+			buffer, err := io.ReadAll(file)
+			if err != nil {
+				ctx.JSON(400, map[string]string{
+					"message": "failed to read form file",
+				})
+
+				return
+			}
+
+			aiRes, err := aiService.ClassifyImage(buffer)
+			if err != nil {
+				log.Printf("failed to search recipes: %v", err)
+
+				ctx.JSON(400, aiRes)
+				return
+			}
+
+			class := aiRes["class"].(string)
+
+			typesenseRes, err := typesenseService.SearchRecipes(class)
+			if err != nil {
+				log.Printf("failed to search recipes: %v", err)
+
+				ctx.JSON(400, typesenseRes)
+				return
+			}
+
+			ctx.JSON(200, convertKeys(typesenseRes))
 		})
 	}
 

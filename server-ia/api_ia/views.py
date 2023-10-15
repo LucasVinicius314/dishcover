@@ -13,7 +13,7 @@ def search_ia(request):
   retorno = obj.classficacao()
   
   data = {
-    "Classificação": f"{retorno}"
+    "class": f"{retorno}"
   }
   
   return JsonResponse(data)
