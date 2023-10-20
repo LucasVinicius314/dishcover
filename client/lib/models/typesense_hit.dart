@@ -1,4 +1,5 @@
 import 'package:dishcover_client/models/recipe.dart';
+import 'package:dishcover_client/models/typesense_hit_highlight.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'typesense_hit.g.dart';
@@ -10,6 +11,7 @@ class TypesenseHit {
   });
 
   Recipe? document;
+  Map<String, TypesenseHitHighlight>? highlight;
 
   factory TypesenseHit.fromJson(Map<String, dynamic> json) =>
       _$TypesenseHitFromJson(json);
