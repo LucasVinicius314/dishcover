@@ -29,59 +29,119 @@ class _HomePageState extends State<HomePage> {
             const SnackBar(content: Text('Imagem muito grande.')),
           );
         }
+
         if (state is GetRecipesDoneState) {
           if (state.typesenseResponse.hits?.isEmpty == true) {
             return;
           }
 
-          final hit = state.typesenseResponse.hits![0];
+          final matchedTokens = <String>{};
+
+          final hits = state.typesenseResponse.hits ?? [];
+
+          for (final hit in hits) {
+            final hitMatchedTokens =
+                hit.highlight?['cleanedIngredients']?.matchedTokens ?? [];
+
+            for (var matchedToken in hitMatchedTokens) {
+              matchedTokens.add(matchedToken);
+            }
+          }
 
           await showDialog(
             context: context,
             builder: (context) {
-              return AlertDialog(
-                title: const Text('Receita'),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      hit.document?.title ?? '',
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(hit.document?.instructions ?? ''),
-                  ],
-                ),
-                actions: [
-                  OutlinedButton.icon(
-                    onPressed: () async {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Copiado para a área de transferência.',
+              return LayoutBuilder(builder: (context, contraints) {
+                return AlertDialog(
+                  title: const Text('Receitas'),
+                  content: SizedBox(
+                    width: contraints.maxWidth - 32,
+                    height: contraints.maxHeight - 32,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          matchedTokens.join(', '),
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 16),
+                        Expanded(
+                          child: ListView.separated(
+                            itemCount: hits.length,
+                            separatorBuilder: (context, index) {
+                              return const SizedBox(height: 32);
+                            },
+                            itemBuilder: (context, index) {
+                              final hit = hits[index];
+
+                              return Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Expanded(
+                                        child: SelectableText(
+                                          hit.document?.title ?? '',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headlineSmall,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      OutlinedButton.icon(
+                                        onPressed: () async {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                'Copiado para a área de transferência.',
+                                              ),
+                                            ),
+                                          );
+
+                                          await Clipboard.setData(
+                                            ClipboardData(
+                                              text:
+                                                  '${hit.document?.title ?? ''}\n${hit.document?.instructions ?? ''}',
+                                            ),
+                                          );
+                                        },
+                                        icon: const Icon(Icons.copy, size: 18),
+                                        label: const Text('Copiar'),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  SelectableText(
+                                    hit.document?.instructions ?? '',
+                                  ),
+                                  const SizedBox(height: 32),
+                                ],
+                              );
+                            },
                           ),
                         ),
-                      );
-
-                      await Clipboard.setData(
-                        ClipboardData(
-                          text:
-                              '${hit.document?.title ?? ''}\n${hit.document?.instructions ?? ''}',
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.copy, size: 18),
-                    label: const Text('Copiar'),
+                        const Divider(height: 1),
+                      ],
+                    ),
                   ),
-                  OutlinedButton(
-                    onPressed: () async {
-                      await Navigator.of(context).maybePop();
-                    },
-                    child: const Text('Fechar'),
-                  ),
-                ],
-              );
+                  actions: [
+                    OutlinedButton(
+                      onPressed: () async {
+                        await Navigator.of(context).maybePop();
+                      },
+                      child: const Text('Fechar'),
+                    ),
+                  ],
+                );
+              });
             },
           );
         }
@@ -113,19 +173,26 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   ConstrainedBox(
                     constraints: const BoxConstraints(minHeight: 200),
-                    child: const Padding(
-                      padding: EdgeInsets.all(16),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
                       child: Align(
                         alignment: Alignment.center,
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.photo),
-                            SizedBox(height: 16),
-                            Text(
-                              'Arraste e solte sua foto aqui',
-                              textAlign: TextAlign.center,
-                            ),
+                            if (state is RecipeLoadingState)
+                              SizedBox.fromSize(
+                                size: const Size.square(24),
+                                child: const CircularProgressIndicator(),
+                              )
+                            else ...[
+                              const Icon(Icons.photo),
+                              const SizedBox(height: 16),
+                              const Text(
+                                'Arraste e solte sua foto aqui',
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
                           ],
                         ),
                       ),
