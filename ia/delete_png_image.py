@@ -1,7 +1,7 @@
 import os
 from PIL import Image
 
-folder_path = './data/archiveshort/data/'
+folder_path = '../ia/data/dividirdata/'
 
 
 image_paths = []
@@ -9,7 +9,6 @@ large_image_path = []
 
 for root, dirs, files in os.walk(folder_path):
     for file in files:
-
         image_path = os.path.join(root, file)
 
         try:
@@ -20,8 +19,8 @@ for root, dirs, files in os.walk(folder_path):
         if file.lower().endswith('.png'):
             image_paths.append(image_path)
 
-# print(image_paths)
-# print(large_image_path)
+print(image_paths)
+print(large_image_path)
 
 for each in image_paths:
     os.remove(each)
