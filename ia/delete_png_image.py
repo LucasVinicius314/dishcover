@@ -1,7 +1,7 @@
 import os
 from PIL import Image
 
-folder_path = '../ia/data/dividirdata/'
+folder_path = '../ia/data_clean/data_dividir/'
 
 
 image_paths = []

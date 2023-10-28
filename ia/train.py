@@ -48,32 +48,35 @@ model = Sequential()
 
 # Adicionar as camadas convolucionais
 model.add(Conv2D(16, (3, 3), activation='relu', input_shape=(
-    input_shape_value, input_shape_value, 3)))
+    input_shape_value, input_shape_value, 3), kernel_regularizer=regularizers.l2(0.01)))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
 
-model.add(Conv2D(32, (3, 3), activation='relu'))
+model.add(Conv2D(32, (3, 3), activation='relu',
+          kernel_regularizer=regularizers.l2(0.01)))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
 
-model.add(Conv2D(64, (3, 3), activation='relu'))
+model.add(Conv2D(64, (3, 3), activation='relu',
+          kernel_regularizer=regularizers.l2(0.01)))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
 
-model.add(Conv2D(128, (3, 3), activation='relu'))
+model.add(Conv2D(128, (3, 3), activation='relu',
+          kernel_regularizer=regularizers.l2(0.01)))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
 
 model.add(Flatten())
 
 # Adicionar camadas densas
-model.add(Dense(512, activation='relu'))
+model.add(Dense(64, activation='relu', kernel_regularizer=regularizers.l2(0.05)))
 model.add(Dropout(0.5))
 
 # Adicionar camada de saída
 model.add(Dense(len(train_dataset.class_indices), activation='softmax'))
 
-optimizer = Adamax(learning_rate=0.002)
+optimizer = Adamax(learning_rate=0.001)
 
 
 # Compilar o modelo
@@ -85,7 +88,7 @@ start_time = time.time()
 resultados = model.fit_generator(
     train_dataset,
     steps_per_epoch=len(train_dataset),
-    epochs=12,
+    epochs=40,
     validation_data=validation_dataset,
 )
 end_time = time.time()
