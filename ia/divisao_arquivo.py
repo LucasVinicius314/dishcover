@@ -113,7 +113,7 @@ if (int(isValido) == 1):
 
     destination_folder = diretorio_destino + "/validation/"
 
-    num_files = 5
+    num_files = 2
 
     for each in pastas:
 
