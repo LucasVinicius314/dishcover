@@ -1,1 +1,1 @@
-python divisao_arquivo.py "/data/toDividir/" "/newdata/" 1
+python divisao_arquivo.py "/data/dividirdata_certo/" "/data/data" 1

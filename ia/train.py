@@ -4,12 +4,13 @@ import tensorflow as tf
 import numpy as np
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential, load_model
-from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
+from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, GlobalAveragePooling2D
 import time
 import matplotlib.pyplot as plt
 from tensorflow.keras.optimizers import Adamax
 from tensorflow.keras.metrics import F1Score
 from tensorflow.keras import regularizers
+from tensorflow.keras.callbacks import EarlyStopping
 
 print("#######################################")
 print(tf.config.list_physical_devices())
@@ -19,7 +20,7 @@ print("#######################################")
 path_treino = "./data/data/train/"
 path_test = "./data/data/test/"
 
-input_shape_value = 300
+input_shape_value = 250
 batch_size = 32
 
 train_datagen = ImageDataGenerator(rescale=1./255)
@@ -47,54 +48,45 @@ model = Sequential()
 # #################
 
 # Adicionar as camadas convolucionais
+
 model.add(Conv2D(16, (3, 3), activation='relu', input_shape=(
-    input_shape_value, input_shape_value, 3), kernel_regularizer=regularizers.l2(0.01)))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Dropout(0.25))
+    input_shape_value, input_shape_value, 3)))
+model.add(MaxPooling2D((2, 2)))
 
-model.add(Conv2D(32, (3, 3), activation='relu',
-          kernel_regularizer=regularizers.l2(0.01)))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Dropout(0.25))
+model.add(Conv2D(32, (3, 3), activation='relu'))
+model.add(MaxPooling2D((2, 2)))
 
-model.add(Conv2D(64, (3, 3), activation='relu',
-          kernel_regularizer=regularizers.l2(0.01)))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Dropout(0.25))
+model.add(Conv2D(64, (3, 3), activation='relu'))
+model.add(MaxPooling2D((2, 2)))
 
-model.add(Conv2D(128, (3, 3), activation='relu',
-          kernel_regularizer=regularizers.l2(0.01)))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Dropout(0.25))
+model.add(GlobalAveragePooling2D())
 
-model.add(Flatten())
-
-# Adicionar camadas densas
-model.add(Dense(64, activation='relu', kernel_regularizer=regularizers.l2(0.05)))
-model.add(Dropout(0.5))
-
-# Adicionar camada de saída
+model.add(Dense(128, activation='relu'))
+model.add(Dropout(0.5))  # Dropout para evitar overfitting
+# Camada de saída com ativação softmax para as 10 categorias
 model.add(Dense(len(train_dataset.class_indices), activation='softmax'))
 
-optimizer = Adamax(learning_rate=0.001)
-
-
 # Compilar o modelo
-model.compile(optimizer=optimizer, loss='CategoricalCrossentropy',
+model.compile(optimizer='adam', loss='categorical_crossentropy',
               metrics=['accuracy',  tf.keras.metrics.AUC(num_thresholds=3),  tf.keras.metrics.Recall(), tf.keras.metrics.Precision(), tf.keras.metrics.FalseNegatives(), tf.keras.metrics.FalsePositives()])
+
+early_stopping = EarlyStopping(
+    monitor='val_loss', patience=5, restore_best_weights=True)
 
 start_time = time.time()
 # Treinar o modelo
 resultados = model.fit_generator(
     train_dataset,
     steps_per_epoch=len(train_dataset),
-    epochs=40,
+    epochs=5,
     validation_data=validation_dataset,
+    callbacks=[early_stopping],
 )
 end_time = time.time()
 
 tempo_de_treinamento = (end_time - start_time) / 60
 
+model.summary()
 
 data = train_dataset.class_indices
 
